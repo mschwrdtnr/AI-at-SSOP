@@ -1,0 +1,2 @@
+Time,Lateness,AssemblingOperator1,TotalSetup,InDue,OverDue,New,Product_,AdherenceToDue,TotalWork,Finished,OEE,CuttingOperator1,Assembling2,Assembling1,Assembly,Total,Worker2,OverDueTotal,Cutting1,Worker3,CycleTime,Consumab,Drilling1,DrillingOperator1,Tardiness,Cutting2,Material,InDueTotal,Open,Worker1
+12600,-911.56875,0.68,10.76,1,0,4,52.90428571,100,42.98,1,47.28,0.25,0.95,0.92,4.447274603,160,0.83,0,0.4,0.72,1502.40625,19989.72642,0.79,0.25,0,0.49,3197005.811,160,28,0.81
