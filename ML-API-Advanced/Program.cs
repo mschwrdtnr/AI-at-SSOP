@@ -12,6 +12,14 @@ using Microsoft.ML.AutoML;
 using Microsoft.ML.Data;
 using PLplot;
 
+/* TODOS:
+- Insert more Testdata for prediction. Maybe forecast instead of actual regression is needed.
+- Don't create a new Model everytime.
+- Imporve the model: https://docs.microsoft.com/en-us/dotnet/machine-learning/resources/improve-machine-learning-model-ml-net
+- Try to implement PLplot again
+
+*/
+
 namespace ML_API_Advanced
 {
     internal static class Program
@@ -19,8 +27,8 @@ namespace ML_API_Advanced
 
         private static string rootDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../"));
         private static string ModelPath = Path.Combine(rootDir, "MLModel.zip");
-        private static string TrainDataPath = "C:/Users/axsw/source/repos/ML-API-Advanced/ML-API-Advanced/Data/CycleTime_train.csv";
-        private static string TestDataPath = "C:/Users/axsw/source/repos/ML-API-Advanced/ML-API-Advanced/Data/CycleTime_eval.csv";
+        private static string TrainDataPath = Path.Combine(rootDir, "Data/CycleTime_train.csv");
+        private static string TestDataPath = Path.Combine(rootDir, "Data/CycleTime_eval.csv");
 
         private static MLContext mlContext = new MLContext();
 
@@ -45,7 +53,7 @@ namespace ML_API_Advanced
             TestSinglePrediction(mlContext);
 
             // Paint regression distribution chart for a number of elements read from a Test DataSet file
-            // PlotRegressionChart(mlContext, TestDataPath, 100, args);
+            //PlotRegressionChart(mlContext, TestDataPath, 100, args);
 
             Console.WriteLine("Press any key to exit..");
             Console.ReadLine();
@@ -119,8 +127,8 @@ namespace ML_API_Advanced
             mlContext.Model.Save(model, trainDataView.Schema, ModelPath);
             Console.WriteLine($"The model is saved to {ModelPath}");
         }
-    
-/*        private static void PlotRegressionChart(MLContext mlContext,
+
+        private static void PlotRegressionChart(MLContext mlContext,
                                         string testDataSetPath,
                                         int numberOfRecordsToRead,
                                         string[] args)
@@ -275,7 +283,7 @@ namespace ML_API_Advanced
                 UseShellExecute = true
             };
             p.Start();
-        }*/
+        }
         private static void PrintTopModels(ExperimentResult<RegressionMetrics> experimentResult)
         {
             // Get top few runs ranked by R-Squared.
