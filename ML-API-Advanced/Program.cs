@@ -30,15 +30,8 @@ namespace ML_API_Advanced
         private static string LabelColumnName = "CycleTime";
         private static uint ExperimentTime = 10;
 
-        static void Main(string[] args) //If args[0] == "svg" a vector-based chart will be created instead a .png chart
+        static void Main(string[] args) 
         {
-
-
-            // STEP 1: Common data loading configuration
-
-            // Create, train, evaluate and save a model
-            //BuildTrainEvaluateAndSaveModel(mlContext);
-
             // Run an AutoML experiment on the dataset.
             var experimentResult = RunAutoMLExperiment(mlContext);
 
@@ -60,18 +53,15 @@ namespace ML_API_Advanced
 
         private static ExperimentResult<RegressionMetrics> RunAutoMLExperiment(MLContext mlContext)
         {
-            // STEP 1: Common data loading configuration
-            /*            IDataView trainingDataView = mlContext.Data.LoadFromTextFile<Simulation>(TrainDataPath, hasHeader: true, separatorChar: ',');
-                        IDataView testDataView = mlContext.Data.LoadFromTextFile<Simulation>(TestDataPath, hasHeader: true, separatorChar: ',');*/
 
-            // STEP 2: Display first few rows of the training data
+            // Display first few rows of the training data
             ConsoleHelper.ShowDataViewInConsole(mlContext, trainDataView);
 
-            // STEP 3: Initialize our user-defined progress handler that AutoML will 
+            // Initialize our user-defined progress handler that AutoML will 
             // invoke after each model it produces and evaluates.
             var progressHandler = new RegressionExperimentProgressHandler();
 
-            // STEP 4: Run AutoML regression experiment
+            // Run AutoML regression experiment
             ConsoleHelper.ConsoleWriteHeader("=============== Training the model ===============");
             Console.WriteLine($"Running AutoML regression experiment for {ExperimentTime} seconds...");
             ExperimentResult<RegressionMetrics> experimentResult = mlContext.Auto()
@@ -85,23 +75,6 @@ namespace ML_API_Advanced
             return experimentResult;
         }
 
-        /*            // STEP 5: Evaluate the model and print metrics
-                    ConsoleHelper.ConsoleWriteHeader("===== Evaluating model's accuracy with test data =====");
-                    RunDetail<RegressionMetrics> best = experimentResult.BestRun;
-                    ITransformer trainedModel = best.Model;
-                    IDataView predictions = trainedModel.Transform(testDataView);
-                    var metrics = mlContext.Regression.Evaluate(predictions, labelColumnName: LabelColumnName, scoreColumnName: "Score");
-                    // Print metrics from top model
-                    ConsoleHelper.PrintRegressionMetrics(best.TrainerName, metrics);*/
-
-        // STEP 6: Save/persist the trained model to a .ZIP file
-        /*            mlContext.Model.Save(trainedModel, trainingDataView.Schema, ModelPath);
-
-                    Console.WriteLine("The model is saved to {0}", ModelPath);
-
-                    return trainedModel;
-                }*/
-
         private static void EvaluateModel(MLContext mlContext, ITransformer model, string trainerName)
         {
             ConsoleHelper.ConsoleWriteHeader("===== Evaluating model's accuracy with test data =====");
@@ -114,17 +87,13 @@ namespace ML_API_Advanced
         {
             ConsoleHelper.ConsoleWriteHeader("=============== Testing prediction engine ===============");
 
-            // Sample: 
-            // vendor_id,rate_code,passenger_count,trip_time_in_secs,trip_distance,payment_type,fare_amount
-            // VTS,1,1,1140,3.75,CRD,15.5
-
             var cycleTimeSample = new Simulation
             {
                 Time = 3600F,
                 Material = 3130253F,
                 InDueTotal = 17F,
                 Consumab = 19918.82F,
-                CycleTime = 1041.941176F, // 1041.941176F,
+                CycleTime = 1041.941176F,
                 Assembly = 5.849511F,
                 Lateness = -1341.529F,
                 Total = 17F,
@@ -323,16 +292,6 @@ namespace ML_API_Advanced
                 var run = topRuns.ElementAt(i);
                 ConsoleHelper.PrintIterationMetrics(i + 1, run.TrainerName, run.ValidationMetrics, run.RuntimeInSeconds);
             }
-        }
-
-        public static string GetAbsolutePath(string relativePath)
-        {
-            var _dataRoot = new FileInfo(typeof(Program).Assembly.Location);
-            string assemblyFolderPath = _dataRoot.Directory.FullName;
-
-            string fullPath = Path.Combine(assemblyFolderPath, relativePath);
-
-            return fullPath;
         }
     }
 
