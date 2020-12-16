@@ -13,11 +13,11 @@ using Microsoft.ML.Data;
 using PLplot;
 
 /* TODOS:
-- Insert more Testdata for prediction. Maybe forecast instead of actual regression is needed.
+- Maybe forecast instead of actual regression is needed.
+- Insert more Testdata for prediction. 
 - Don't create a new Model everytime.
 - Imporve the model: https://docs.microsoft.com/en-us/dotnet/machine-learning/resources/improve-machine-learning-model-ml-net
 - Try to implement PLplot again
-
 */
 
 namespace ML_API_Advanced
@@ -36,7 +36,7 @@ namespace ML_API_Advanced
         private static IDataView testDataView = mlContext.Data.LoadFromTextFile<Simulation>(TestDataPath, hasHeader: true, separatorChar: ',');
 
         private static string LabelColumnName = "CycleTime";
-        private static uint ExperimentTime = 10;
+        private static uint ExperimentTime = 300;
 
         static void Main(string[] args) 
         {
@@ -97,14 +97,14 @@ namespace ML_API_Advanced
 
             var cycleTimeSample = new Simulation
             {
-                Time = 3600F,
-                Material = 3130253F,
-                InDueTotal = 17F,
-                Consumab = 19918.82F,
-                CycleTime = 1041.941176F,
-                Assembly = 5.849511F,
-                Lateness = -1341.529F,
-                Total = 17F,
+                Time = 5280F,
+                Lateness = -1315.25F,
+                Assembly = 4.910337121F,
+                Total = 40F,
+                CycleTime = 1056.8F,
+                Consumab = 19938.2465F,
+                Material = 3168426.346F,
+                InDueTotal = 40F
             };
 
             ITransformer trainedModel = mlContext.Model.Load(ModelPath, out var modelInputSchema);
@@ -314,11 +314,13 @@ namespace ML_API_Advanced
                 .Select(x => new Simulation()
                 {
                     Time = int.Parse(x[0]),
-                    Material = float.Parse(x[1]),
-                    InDueTotal = float.Parse(x[2]),
-                    Consumab = float.Parse(x[3]),
+                    Lateness = float.Parse(x[1]),
+                    Assembly = float.Parse(x[2]),
+                    Total = int.Parse(x[3]),
                     CycleTime = float.Parse(x[4]),
-                    Assembly = float.Parse(x[5])
+                    Consumab = float.Parse(x[5]),
+                    Material = float.Parse(x[6]),
+                    InDueTotal = int.Parse(x[7])
                 })
                 .Take<Simulation>(numMaxRecords);
 
