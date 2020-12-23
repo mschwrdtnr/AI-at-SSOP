@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using ML_API_Advanced.DataStuctures;
 using Common;
 using Microsoft.ML;
@@ -13,10 +11,9 @@ using Microsoft.ML.Data;
 using PLplot;
 
 /* TODOS:
-- Maybe forecast instead of actual regression is needed.
-- Insert more Testdata for prediction. 
-- Don't create a new Model everytime.
-- Imporve the model: https://docs.microsoft.com/en-us/dotnet/machine-learning/resources/improve-machine-learning-model-ml-net
+- Rebuild to load out of database
+- Save modelname into model
+- Improve the model: https://docs.microsoft.com/en-us/dotnet/machine-learning/resources/improve-machine-learning-model-ml-net
 - Try to implement PLplot again
 */
 
@@ -24,7 +21,6 @@ namespace ML_API_Advanced
 {
     internal static class Program
     {
-
         private static string rootDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../"));
         private static string ModelPath = Path.Combine(rootDir, "MLModel.zip");
         private static string TrainDataPath = Path.Combine(rootDir, "Data/CycleTime_train.csv");
@@ -36,21 +32,25 @@ namespace ML_API_Advanced
         private static IDataView testDataView = mlContext.Data.LoadFromTextFile<Simulation>(TestDataPath, hasHeader: true, separatorChar: ',');
 
         private static string LabelColumnName = "CycleTime";
-        private static uint ExperimentTime = 300;
+        private static uint ExperimentTime = 600;
+        private static int NumberOfPredictions = 161;
 
         static void Main(string[] args) 
         {
             // Run an AutoML experiment on the dataset.
-            var experimentResult = RunAutoMLExperiment(mlContext);
+            //var experimentResult = RunAutoMLExperiment(mlContext);
 
             // Evaluate the model and print metrics.
-            EvaluateModel(mlContext, experimentResult.BestRun.Model, experimentResult.BestRun.TrainerName);
+            //EvaluateModel(mlContext, experimentResult.BestRun.Model, experimentResult.BestRun.TrainerName);
 
             // Save / persist the best model to a.ZIP file.
-            SaveModel(mlContext, experimentResult.BestRun.Model);
+            //SaveModel(mlContext, experimentResult.BestRun.Model);
 
             // Make a single test prediction loading the model from .ZIP file
-            TestSinglePrediction(mlContext);
+            //TestSinglePrediction(mlContext);
+
+            //Predict X Values
+            PredictWithSavedModel(mlContext, NumberOfPredictions);
 
             // Paint regression distribution chart for a number of elements read from a Test DataSet file
             //PlotRegressionChart(mlContext, TestDataPath, 100, args);
@@ -91,6 +91,25 @@ namespace ML_API_Advanced
             ConsoleHelper.PrintRegressionMetrics(trainerName, metrics);
         }
 
+        private static void SaveModel(MLContext mlContext, ITransformer model)
+        {
+            ConsoleHelper.ConsoleWriteHeader("=============== Saving the model ===============");
+            mlContext.Model.Save(model, trainDataView.Schema, ModelPath);
+            Console.WriteLine($"The model is saved to {ModelPath}");
+        }
+
+        private static void PredictWithSavedModel(MLContext mlcontext, int numberOfPredictions)
+        {
+            ITransformer trainedModel = mlContext.Model.Load(ModelPath, out var modelInputSchema);
+
+            // Create prediction engine related to the loaded trained model.
+            var predEngine = mlContext.Model.CreatePredictionEngine<Simulation, CycleTimePrediction>(trainedModel);
+
+            Console.WriteLine("======================================================================================================");
+            Console.WriteLine($"================== Visualize/test {numberOfPredictions} predictions for model Model.zip ==================");
+            //Visualize 10 tests comparing prediction with actual/observed values from the test dataset
+            ModelScoringTester.VisualizeSomePredictions(mlContext, TestDataPath, predEngine, numberOfPredictions);
+        }
         private static void TestSinglePrediction(MLContext mlContext)
         {
             ConsoleHelper.ConsoleWriteHeader("=============== Testing prediction engine ===============");
@@ -119,13 +138,6 @@ namespace ML_API_Advanced
             Console.WriteLine($"Predicted CycleTime: {predictedResult.CycleTime:0.####}, actual CycleTime: {cycleTimeSample.CycleTime}");
             Console.WriteLine($"Difference in %: {((predictedResult.CycleTime / cycleTimeSample.CycleTime) - 1) * 100}");
             Console.WriteLine("**********************************************************************");
-        }
-
-        private static void SaveModel(MLContext mlContext, ITransformer model)
-        {
-            ConsoleHelper.ConsoleWriteHeader("=============== Saving the model ===============");
-            mlContext.Model.Save(model, trainDataView.Schema, ModelPath);
-            Console.WriteLine($"The model is saved to {ModelPath}");
         }
 
         private static void PlotRegressionChart(MLContext mlContext,
