@@ -23,16 +23,16 @@ namespace ML_API_Advanced
     {
         private static string rootDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../"));
         private static string ModelPath = Path.Combine(rootDir, "MLModel.zip");
-        private static string TrainDataPath = Path.Combine(rootDir, "Data/CycleTime_train.csv");
-        private static string TestDataPath = Path.Combine(rootDir, "Data/CycleTime_eval.csv");
-
+        private static string trainDataPath = Path.Combine(rootDir, "Data/CycleTime_train_diffAT.csv");
+        private static string evalDataPath = Path.Combine(rootDir, "Data/CycleTime_eval_lowAT_00142.csv");
+        
         private static MLContext mlContext = new MLContext();
 
-        private static IDataView trainDataView = mlContext.Data.LoadFromTextFile<Simulation>(TrainDataPath, hasHeader: true, separatorChar: ',');
-        private static IDataView testDataView = mlContext.Data.LoadFromTextFile<Simulation>(TestDataPath, hasHeader: true, separatorChar: ',');
+        private static IDataView trainDataView = mlContext.Data.LoadFromTextFile<Simulation>(trainDataPath, hasHeader: true, separatorChar: ';');
+        private static IDataView evalDataView = mlContext.Data.LoadFromTextFile<Simulation>(evalDataPath, hasHeader: true, separatorChar: ';');
 
         private static string LabelColumnName = "CycleTime";
-        private static uint ExperimentTime = 600;
+        private static uint ExperimentTime = 300;
         private static int NumberOfPredictions = 161;
 
         static void Main(string[] args) 
@@ -43,6 +43,8 @@ namespace ML_API_Advanced
             // Evaluate the model and print metrics.
             //EvaluateModel(mlContext, experimentResult.BestRun.Model, experimentResult.BestRun.TrainerName);
 
+            EvaluateSavedModel(mlContext, evalDataView);
+
             // Save / persist the best model to a.ZIP file.
             //SaveModel(mlContext, experimentResult.BestRun.Model);
 
@@ -50,7 +52,7 @@ namespace ML_API_Advanced
             //TestSinglePrediction(mlContext);
 
             //Predict X Values
-            PredictWithSavedModel(mlContext, NumberOfPredictions);
+            //PredictWithSavedModel(mlContext, NumberOfPredictions);
 
             // Paint regression distribution chart for a number of elements read from a Test DataSet file
             //PlotRegressionChart(mlContext, TestDataPath, 100, args);
@@ -85,10 +87,20 @@ namespace ML_API_Advanced
 
         private static void EvaluateModel(MLContext mlContext, ITransformer model, string trainerName)
         {
-            ConsoleHelper.ConsoleWriteHeader("===== Evaluating model's accuracy with test data =====");
-            IDataView predictions = model.Transform(testDataView);
+            ConsoleHelper.ConsoleWriteHeader("===== Evaluating model's accuracy with eval data =====");
+            IDataView predictions = model.Transform(evalDataView);
             var metrics = mlContext.Regression.Evaluate(predictions, labelColumnName: LabelColumnName, scoreColumnName: "Score");
             ConsoleHelper.PrintRegressionMetrics(trainerName, metrics);
+        }
+
+        private static void EvaluateSavedModel(MLContext mlContext, IDataView evalDataView)
+        {
+            var evalDataName = evalDataPath.Substring(evalDataPath.IndexOf("CycleTime_"));
+            ITransformer trainedModel = mlContext.Model.Load(ModelPath, out var modelInputSchema);
+
+            IDataView predictions = trainedModel.Transform(evalDataView);
+            var metrics = mlContext.Regression.Evaluate(predictions, labelColumnName: LabelColumnName, scoreColumnName: "Score");
+            ConsoleHelper.PrintRegressionMetrics(evalDataName, metrics);
         }
 
         private static void SaveModel(MLContext mlContext, ITransformer model)
@@ -98,7 +110,7 @@ namespace ML_API_Advanced
             Console.WriteLine($"The model is saved to {ModelPath}");
         }
 
-        private static void PredictWithSavedModel(MLContext mlcontext, int numberOfPredictions)
+        private static void PredictWithSavedModel(MLContext mlContext, int numberOfPredictions)
         {
             ITransformer trainedModel = mlContext.Model.Load(ModelPath, out var modelInputSchema);
 
@@ -106,9 +118,9 @@ namespace ML_API_Advanced
             var predEngine = mlContext.Model.CreatePredictionEngine<Simulation, CycleTimePrediction>(trainedModel);
 
             Console.WriteLine("======================================================================================================");
-            Console.WriteLine($"================== Visualize/test {numberOfPredictions} predictions for model Model.zip ==================");
-            //Visualize 10 tests comparing prediction with actual/observed values from the test dataset
-            ModelScoringTester.VisualizeSomePredictions(mlContext, TestDataPath, predEngine, numberOfPredictions);
+            Console.WriteLine($"================== Visualize/eval {numberOfPredictions} predictions for model Model.zip ==================");
+            //Visualize 10 evals comparing prediction with actual/observed values from the eval dataset
+            ModelScoringTester.VisualizeSomePredictions(mlContext, evalDataPath, predEngine, numberOfPredictions);
         }
         private static void TestSinglePrediction(MLContext mlContext)
         {
@@ -141,7 +153,7 @@ namespace ML_API_Advanced
         }
 
         private static void PlotRegressionChart(MLContext mlContext,
-                                        string testDataSetPath,
+                                        string evalDataSetPath,
                                         int numberOfRecordsToRead,
                                         string[] args)
         {
@@ -195,7 +207,7 @@ namespace ML_API_Advanced
                 pl.col0(1);
 
                 int totalNumber = numberOfRecordsToRead;
-                var testData = new SimulationCsvReader().GetDataFromCsv(testDataSetPath, totalNumber).ToList();
+                var evalData = new SimulationCsvReader().GetDataFromCsv(evalDataSetPath, totalNumber).ToList();
 
                 // This code is the symbol to paint
                 var code = (char)9;
@@ -210,15 +222,15 @@ namespace ML_API_Advanced
                 double xyMultiTotal = 0;
                 double xSquareTotal = 0;
 
-                for (int i = 0; i < testData.Count; i++)
+                for (int i = 0; i < evalData.Count; i++)
                 {
                     var x = new double[1];
                     var y = new double[1];
 
                     // Make Prediction.
-                    var cycleTimePrediction = predFunction.Predict(testData[i]);
+                    var cycleTimePrediction = predFunction.Predict(evalData[i]);
 
-                    x[0] = testData[i].CycleTime;
+                    x[0] = evalData[i].CycleTime;
                     y[0] = cycleTimePrediction.CycleTime;
 
                     // Paint a dot
@@ -237,7 +249,7 @@ namespace ML_API_Advanced
 
                     Console.WriteLine("-------------------------------------------------");
                     Console.WriteLine($"Predicted : {cycleTimePrediction.CycleTime}");
-                    Console.WriteLine($"Actual:    {testData[i].CycleTime}");
+                    Console.WriteLine($"Actual:    {evalData[i].CycleTime}");
                     Console.WriteLine("-------------------------------------------------");
                 }
 
@@ -322,7 +334,7 @@ namespace ML_API_Advanced
             IEnumerable<Simulation> records =
                 File.ReadAllLines(dataLocation)
                 .Skip(1)
-                .Select(x => x.Split(','))
+                .Select(x => x.Split(';'))
                 .Select(x => new Simulation()
                 {
                     Time = int.Parse(x[0]),

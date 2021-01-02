@@ -33,11 +33,11 @@ namespace Common
             Console.WriteLine($"*************************************************");
             Console.WriteLine($"*       Metrics for {name} regression model      ");
             Console.WriteLine($"*------------------------------------------------");
-            Console.WriteLine($"*       LossFn:        {metrics.LossFunction:0.##}");
-            Console.WriteLine($"*       R2 Score:      {metrics.RSquared:0.##}");
-            Console.WriteLine($"*       Mean Absolute loss: {metrics.MeanAbsoluteError:#.##}");
-            Console.WriteLine($"*       Mean Squared loss:  {metrics.MeanSquaredError:#.##}");
-            Console.WriteLine($"*       RMS-Error loss:      {metrics.RootMeanSquaredError:#.##}");
+            Console.WriteLine($"*       LossFn:        {metrics.LossFunction:0.####}");
+            Console.WriteLine($"*       R2 Score:      {metrics.RSquared:0.####}");
+            Console.WriteLine($"*       Mean Absolute loss: {metrics.MeanAbsoluteError:#.####}");
+            Console.WriteLine($"*       Mean Squared loss:  {metrics.MeanSquaredError:#.####}");
+            Console.WriteLine($"*       RMS-Error loss:      {metrics.RootMeanSquaredError:#.####}");
             Console.WriteLine($"*************************************************");
         }
 
