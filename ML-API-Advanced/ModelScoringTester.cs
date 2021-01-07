@@ -26,17 +26,17 @@ namespace ML_API_Advanced
                 //Score
                 var resultprediction = predEngine.Predict(evalData[i]);
                 float time = evalData[i].Time;
-                float actualValue = evalData[i].CycleTime;
-                float estimate = resultprediction.CycleTime;
+                double actualValue = evalData[i].CycleTime;
+                double estimate = resultprediction.CycleTime;
                 //float estimate = resultprediction[i].PredictedCycleTime;
-                float differenceAbs = estimate - actualValue;
-                float differencePercent = ((estimate / actualValue) - 1) * 100;
+                double differenceAbs = estimate - actualValue;
+                double differencePercent = ((estimate / actualValue) - 1) * 100;
                // float sumDifference += difference;
 
                 Console.WriteLine($"Index: {i}");
                 Console.WriteLine($"Time: {time}");
-                Console.WriteLine($">> Difference in %: {differencePercent} % <<");
-                Console.WriteLine($"Absolute Difference: {differenceAbs}");
+                Console.WriteLine($">> Difference in %: {differencePercent:F5} % <<");
+                Console.WriteLine($"Absolute Difference: {differenceAbs:F5}");
                 Common.ConsoleHelper.PrintRegressionPredictionVersusObserved(resultprediction.CycleTime.ToString(), 
                                                             evalData[i].CycleTime.ToString());
                 //Common.ConsoleHelper.CalculateStandardDeviation(resultprediction.PredictedCycleTime.ToString());

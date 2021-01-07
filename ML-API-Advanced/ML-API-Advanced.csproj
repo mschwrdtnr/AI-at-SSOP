@@ -8,8 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="Common.Logging" Version="3.4.1" />
-    <PackageReference Include="Microsoft.ML" Version="1.5.2" />
-    <PackageReference Include="Microsoft.ML.AutoML" Version="0.17.2" />
+    <PackageReference Include="Microsoft.ML" Version="1.5.4" />
+    <PackageReference Include="Microsoft.ML.AutoML" Version="0.17.4" />
     <PackageReference Include="NuGet.Common" Version="5.8.0" />
     <PackageReference Include="PLplot" Version="5.13.7" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
