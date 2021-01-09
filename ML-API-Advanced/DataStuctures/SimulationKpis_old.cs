@@ -1,8 +1,8 @@
-﻿using Microsoft.ML.Data;
+﻿/*using Microsoft.ML.Data;
 
 namespace ML_API_Advanced.DataStuctures
 {
-    public class Simulation
+    public class SimulationKpis
     {
         [ColumnName("Time"), LoadColumn(0)]
         public float Time { get; set; }
@@ -27,9 +27,6 @@ namespace ML_API_Advanced.DataStuctures
 
         [ColumnName("InDueTotal"), LoadColumn(7)]
         public float InDueTotal { get; set; }
-
-
-
-
     }
 }
+*/
