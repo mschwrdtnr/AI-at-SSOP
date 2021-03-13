@@ -16,11 +16,17 @@ using PLplot;
     and https://github.com/dotnet/machinelearning-samples/tree/master/samples/csharp/end-to-end-apps/Forecasting-Sales
  */
 
+/* TODOS:
+ * - Create a new Model file named after the trainer
+ * - Implement regression chart
+ */ 
+
 namespace ML_API_Advanced
 {
     internal static class Program
     {
         private static string rootDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../"));
+       
         // You can choose different trained models --> This path with override  
         private static string ModelPath = Path.Combine(rootDir, "MLModel.zip");
         private static string trainDataPath = Path.Combine(rootDir, "Data/CycleTime_train_trans.csv");
@@ -31,32 +37,31 @@ namespace ML_API_Advanced
         private static IDataView trainDataView = mlContext.Data.LoadFromTextFile<SimulationKpis>(trainDataPath, hasHeader: true, separatorChar: ';');
         private static IDataView evalDataView = mlContext.Data.LoadFromTextFile<SimulationKpis>(evalDataPath, hasHeader: true, separatorChar: ';');
 
-        private static string LabelColumnName = "CycleTime_t0";
+        private static string LabelColumnName = "CycleTime_t0"; // Target Column; Variable which should be forecasted
+
         // Experiment Time for AutoMLExperiment
-        private static uint ExperimentTime = 300; // If to high RunAutoMLExperiment sometimes don't finish
+        private static uint ExperimentTime = 300; // If > 300 RunAutoMLExperiment will sometimes not finish
+
         private static int NumberOfPredictions = 158; //Used for evaluation
 
         static void Main(string[] args) 
         {
-            //Run an AutoML experiment on the dataset.
-            //var experimentResult = RunAutoMLExperiment(mlContext);
+            // Run an AutoML experiment on the dataset.
+            var experimentResult = RunAutoMLExperiment(mlContext);
 
             // Evaluate the model and print metrics.
-            //EvaluateModel(mlContext, experimentResult.BestRun.Model, experimentResult.BestRun.TrainerName);
+            EvaluateModel(mlContext, experimentResult.BestRun.Model, experimentResult.BestRun.TrainerName);
 
-            // Save / persist the best model to a.ZIP file.
-           // SaveModel(mlContext, experimentResult.BestRun.Model);
+            // Save / persist the best model to a .ZIP file. !This will override the actual .ZIP file
+            SaveModel(mlContext, experimentResult.BestRun.Model);
 
             // To evaluate a model without RunAutoMLExperiment
             EvaluateSavedModel(mlContext, evalDataView);
 
-            // Make a single test prediction loading the model from .ZIP file
-            //TestSinglePrediction(mlContext);
+            //Predict NumberOfPredictions Values
+            PredictWithSavedModel(mlContext, NumberOfPredictions);
 
-            //Predict X Values
-            //PredictWithSavedModel(mlContext, NumberOfPredictions);
-
-            // Paint regression distribution chart for a number of elements read from a Test DataSet file
+            // Paint regression distribution chart for a number of elements read from a Test DataSet file !NOT WORKING!
             //PlotRegressionChart(mlContext, TestDataPath, 100, args);
 
             Console.WriteLine("Press any key to exit..");
@@ -124,36 +129,6 @@ namespace ML_API_Advanced
             //Visualize 10 evals comparing prediction with actual/observed values from the eval dataset
             ModelScoringTester.VisualizeSomePredictions(mlContext, evalDataPath, predEngine, numberOfPredictions);
         }
-       /* private static void TestSinglePrediction(MLContext mlContext)
-        {
-            ConsoleHelper.ConsoleWriteHeader("=============== Testing prediction engine ===============");
-
-            var cycleTimeSample = new SimulationKpis
-            {
-                Time = 4800,
-                Lateness = -1295.297297F,
-                Assembly = 4.962484375F,
-                Total = 37,
-                CycleTime = 1082.081081F,
-                Consumab = 19890.6350F,
-                Material = 3197679.985F,
-                InDueTotal = 37
-            };
-
-            ITransformer trainedModel = mlContext.Model.Load(ModelPath, out var modelInputSchema);
-
-            // Create prediction engine related to the loaded trained model.
-            var predEngine = mlContext.Model.CreatePredictionEngine<SimulationKpis, CycleTimePrediction>(trainedModel);
-
-            // Score.
-            var predictedResult = predEngine.Predict(cycleTimeSample);
-
-
-            Console.WriteLine("**********************************************************************");
-            Console.WriteLine($"Predicted CycleTime: {predictedResult.CycleTime:0.####}, actual CycleTime: {cycleTimeSample.CycleTime}");
-            Console.WriteLine($"Difference in %: {((predictedResult.CycleTime / cycleTimeSample.CycleTime) - 1) * 100}");
-            Console.WriteLine("**********************************************************************");
-        }*/
 
         private static void PrintTopModels(ExperimentResult<RegressionMetrics> experimentResult)
         {
