@@ -28,7 +28,7 @@ namespace ML_API_Advanced
         private static string rootDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../"));
        
         // You can choose different trained models --> This path with override  
-        private static string ModelPath = Path.Combine(rootDir, "MLModel.zip");
+        private static string ModelPath = Path.Combine(rootDir, "MLModels/MLModel.zip");
         private static string trainDataPath = Path.Combine(rootDir, "Data/CycleTime_train_trans.csv");
         private static string evalDataPath = Path.Combine(rootDir, "Data/CycleTime_eval_trans.csv");
         
