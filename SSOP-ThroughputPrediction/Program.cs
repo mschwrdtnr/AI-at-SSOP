@@ -16,7 +16,6 @@ using Microsoft.ML.Data;
  */
 
 /* TODOS:
- * - Create a new Model file named after the trainer
  * - Implement regression chart
  */
 
@@ -27,14 +26,14 @@ namespace ML_API_Advanced
         private static string rootDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../"));
 
         // You can choose different trained models --> This path with override  
-        private static string ModelPath = Path.Combine(rootDir, "MLModels/MLModel.zip");
-        private static string trainDataPath = Path.Combine(rootDir, "Data/CycleTime_train_trans.csv");
-        private static string evalDataPath = Path.Combine(rootDir, "Data/CycleTime_eval_trans.csv");
+        private static string ModelPath = Path.Combine(rootDir, "MLModels/");
+        private static string trainDataPath = Path.Combine(rootDir, "Data/10028_training_001.csv");
+        private static string evalDataPath = Path.Combine(rootDir, "Data/10029_training_001.csv");
 
         private static MLContext mlContext = new MLContext();
 
-        private static IDataView trainDataView = mlContext.Data.LoadFromTextFile<SimulationKpis>(trainDataPath, hasHeader: true, separatorChar: ';');
-        private static IDataView evalDataView = mlContext.Data.LoadFromTextFile<SimulationKpis>(evalDataPath, hasHeader: true, separatorChar: ';');
+        private static IDataView trainDataView = mlContext.Data.LoadFromTextFile<SimulationKpis>(trainDataPath, hasHeader: true, separatorChar: ',');
+        private static IDataView evalDataView = mlContext.Data.LoadFromTextFile<SimulationKpis>(evalDataPath, hasHeader: true, separatorChar: ',');
 
         private static string LabelColumnName = "CycleTime"; // Target Column; Variable which should be forecasted
 
@@ -52,13 +51,13 @@ namespace ML_API_Advanced
             EvaluateModel(mlContext, experimentResult.BestRun.Model, experimentResult.BestRun.TrainerName);
 
             // Save / persist the best model to a .ZIP file. !This will override the actual .ZIP file
-            SaveModel(mlContext, experimentResult.BestRun.Model);
+            SaveModel(mlContext, experimentResult.BestRun.Model, experimentResult.BestRun.TrainerName);
 
             // To evaluate a model without RunAutoMLExperiment
-            EvaluateSavedModel(mlContext, evalDataView);
+            //EvaluateSavedModel(mlContext, evalDataView);
 
             //Predict NumberOfPredictions Values
-            PredictWithSavedModel(mlContext, NumberOfPredictions);
+            //PredictWithSavedModel(mlContext, NumberOfPredictions);
 
             // Paint regression distribution chart for a number of elements read from a Test DataSet file !NOT WORKING!
             //PlotRegressionChart(mlContext, TestDataPath, 100, args);
@@ -108,8 +107,9 @@ namespace ML_API_Advanced
             ConsoleHelper.PrintRegressionMetrics(evalDataName, metrics);
         }
 
-        private static void SaveModel(MLContext mlContext, ITransformer model)
+        private static void SaveModel(MLContext mlContext, ITransformer model, string trainerName)
         {
+            ModelPath = ModelPath + "ML_" + trainerName + ".zip";
             ConsoleHelper.ConsoleWriteHeader("=============== Saving the model ===============");
             mlContext.Model.Save(model, trainDataView.Schema, ModelPath);
             Console.WriteLine($"The model is saved to {ModelPath}");
