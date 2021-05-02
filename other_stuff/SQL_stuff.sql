@@ -131,3 +131,49 @@ select Time, Assembly, Material, "Open", New, TotalWork, TotalSetup from (
 		) as pivot_table
 		order by Time;';
 Execute sp_executesql @sql;
+
+
+
+/*
+Get AvergageCapability Workload 
+*/
+--use TestResultContext
+​
+DECLARE @SIMNUM AS INT
+SET @SIMNUM = 16100300
+​
+DROP TABLE IF EXISTS #Temp
+SELECT *
+INTO #Temp
+FROM
+(SELECT Name, Sum(Value) as value, time, KpiType
+FROM Kpis
+where SimulationNumber = @SIMNUM and KpiType in (1,2)
+group by name, time, KpiType) AS x
+​
+--SELECT * from #Temp
+​
+SELECT SUBSTRING(Name,0,10) as Capability, CASE WHEN KpiType = 1 THEN 'Utilization' WHEN KpiType = 2 THEN 'Setup' END AS KpiType, AVG(Value) as TotalWorkload
+FROM #Temp  
+--WHERE Name Like 'Res%'
+GROUP BY SUBSTRING(Name,0,10), KpiType
+​
+​
+/*DROP TABLE IF EXISTS #Temp
+SELECT *
+INTO #Temp
+FROM
+(SELECT Name, Sum(Value) as Value
+FROM Kpis
+where SimulationNumber = @SIMNUM and IsFinal = 1 and KpiType in (8,9)
+group by Name) AS x
+​
+SELECT * from #Temp
+​
+SELECT SUBSTRING(Name,0,10) as Capability, AVG(Value) as TotalWorkload
+FROM #Temp  
+WHERE Name Like 'Res%'
+GROUP BY SUBSTRING(Name,0,10)
+​
+​
+SELECT * FROM Kpis Where SimulationNumber = 1207 order by time*/
