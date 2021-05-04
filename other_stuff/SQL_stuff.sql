@@ -148,10 +148,8 @@ INTO #Temp
 FROM
 (SELECT Name, Sum(Value) as value, time, KpiType
 FROM Kpis
-where SimulationNumber = @SIMNUM and KpiType in (1,2)
+where SimulationNumber = @SIMNUM and KpiType in (1,2) and Value != 0
 group by name, time, KpiType) AS x
-​
---SELECT * from #Temp
 ​
 SELECT SUBSTRING(Name,0,10) as Capability, CASE WHEN KpiType = 1 THEN 'Utilization' WHEN KpiType = 2 THEN 'Setup' END AS KpiType, AVG(Value) as TotalWorkload
 FROM #Temp  
@@ -177,3 +175,13 @@ GROUP BY SUBSTRING(Name,0,10)
 ​
 ​
 SELECT * FROM Kpis Where SimulationNumber = 1207 order by time*/
+
+
+---------
+-- Get Total Workload of Resources
+-- Scroll trough all view high workload
+
+SELECT Time, Name, SUM(Value) as 'Total Workload' 
+  FROM Kpis
+  WHERE SimulationNumber = '30241' and KpiType in (1,2) and Time > 3360
+  Group by Name, Time
