@@ -185,3 +185,21 @@ SELECT Time, Name, SUM(Value) as 'Total Workload'
   FROM Kpis
   WHERE SimulationNumber = '30241' and KpiType in (1,2) and Time > 3360
   Group by Name, Time
+  
+  
+---- Get Workload of Capabilities without null values
+DECLARE @SIMNUM AS INT
+SET @SIMNUM = 10001
+DROP TABLE IF EXISTS #Temp
+SELECT *
+INTO #Temp
+FROM
+(SELECT Name, Sum(Value) as value, time
+FROM Kpis
+where SimulationNumber = @SIMNUM and KpiType in (1,2) and Value != 0
+group by name, time) AS x
+SELECT SUBSTRING(Name,0,20) as Capability, AVG(Value) as TotalWorkload
+FROM #Temp  
+--WHERE Name Like 'Res%'
+GROUP BY SUBSTRING(Name,0,20)--, KpiType
+order by TotalWorkload desc
