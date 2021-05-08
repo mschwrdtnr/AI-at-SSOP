@@ -27,8 +27,10 @@ namespace ML_API_Advanced
 
         // You can choose different trained models --> This path with override  
         private static string ModelPath = Path.Combine(rootDir, "MLModels/");
-        private static string trainDataPath = Path.Combine(rootDir, "Data/10028_training_001.csv");
-        private static string evalDataPath = Path.Combine(rootDir, "Data/10029_training_001.csv");
+/*        private static string trainDataPath = Path.Combine(rootDir, "Data/10028_training_001.csv");
+        private static string evalDataPath = Path.Combine(rootDir, "Data/10029_training_001.csv");*/
+        private static string trainDataPath = Path.Combine(rootDir, "Data/train.csv");
+        private static string evalDataPath = Path.Combine(rootDir, "Data/eval.csv");
 
         private static MLContext mlContext = new MLContext();
 
