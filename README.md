@@ -1,4 +1,4 @@
-# AI-at-SSOP
+# Machine Learning at SSOP
 Dieses Repository beinhaltet alle Dokumentationen, Präsentationen und Arbeitsdateien für ein durchgeführtes Forschungs- und Entwicklungsseminar an der HTW Dresden. Das Thema der zwei Semester war das Testen von Machine Learning innerhalb einer Simulation einer sich selbst organisierenden Produktion zur Verbesserung der Produktionsperformance.
 
 ## Links zu anderen Projekten
@@ -7,8 +7,7 @@ Dieses Repository beinhaltet alle Dokumentationen, Präsentationen und Arbeitsda
 - Dokumentation des Machine-Learning Projektes: https://github.com/MaxWeickert/ng-erp-4.0/tree/feat/ai-prediction-product-MS/Master40.MachineLearning
 - Link zum ML API Container: https://github.com/mschwrdtnr/tensorflow-rest-prediction
 
-## Gut zu Wissen über das Projekt und die SSOP
-### Erster Start
+## Erster Start
 **Nötige Programme installieren**
 - Visual Studio Installer
 - Microsoft Visual Studio Community Edition mit den folgenden Paketen
@@ -40,12 +39,35 @@ git clone https://github.com/MaxWeickert/ng-erp-4.0.git
 - Produktion erstellen: Rechtsklick auf Test "SetInput" --> Run
 
 **Simulationsparameter anpassen und Simulation starten**
-- In der Test-Datei: "SimulationTemplate.cs" können die Simulationsparameter wie gewünscht angepasst werden.
-- Simulation starten: Rechtsklick auf Test SimulationTemplate --> Run
+- In der Test-Datei: "SimulationTemplate.cs" können die Simulationsparameter wie gewünscht angepasst werden. Hier kann ebenfalls der Algorithmus für die Vorhersage gewählt werden.
+- Simulation starten: Rechtsklick auf Test _SimulationTemplate_ --> Run
 
 **Kennzahlen in Datenbank anschauen**
 - MS SQL Server Management Studio öffnen
 - Auf lokale Datenbank verbinden: `(localdb)\mssqllocaldb`
 - Tabellen anschauen
 
-### Anderes
+## Trainingsdaten generieren
+1. Anzahl von approaches in der Simulationsschleife in _SimulationTemplate_ wählen
+2. Kennzahlen, die für die Trainingsdaten nicht benötigt werden kann ein `[IGNORE]` in `SimulationKpisReshaped.cs` vorangestellt werden
+3. Simulation starten: Rechtsklick auf Test _SimulationTemplate_ --> Run
+4. Die Kennzahlen werden unter folgendem Verzeichnis abgelegt: `Master40.XUnitTest\GeneratedData\`
+
+> Es sollte darauf geachtet werden, dass immer ein anderer Seed verwendet wird, da die Kennzahlen sonst gleich werden.
+> Ein sinnvoller guter Wert für die ThroughPutTime beim Simulationsstart kann wie folgt berechnet werden: `Durchschnittliche Durchlaufzeit der Produkte * minDeliveryTime` 
+> Wenn Trainingsdaten für für neue Produkte erstellt werden sollen, dann kann in `SetInput` die Anzahl der Produkte bestimmt werden. Auch hier sollte ein neuer Seed verwendet werden
+
+## Testen einer guten Ankunftsrate
+1. arrivalRate in _SimulationTemplate_ setzen
+2. Simulation starten: Rechtsklick auf Test _SimulationTemplate_ --> Run
+3. Workload der Maschinen in SQL Datenbank mit dem letzten SQL-Snippet abfragen
+4. Wenn Workload zu hoch ist, dann sollte arrivalRate verringert werden (BSP: Wenn Workload einer Maschine bei 90%, dann arrivalRate um 10% verringern)
+5. Alle Schritte wiederholen bis keine Maschine einen Workload von 0.85 anzeigt
+
+
+## Aktuelle Probleme und Fehler
+> Bezieht sich auf den verwendeten Branch und kann bereits im master der ssop gefixt sein.
+
+- Die Variablen "TotalWork" und "TotalSetup" werden falsch berechnet. Eigentlich sollten sie Werte zwischen 0 und 1 haben.
+- Das Originalprojekt wurde mittlerweile von `Master40` zu `MATE` umgenannt. Diese Doku sollte wenn möglich bei einem merge auch angepasst werden.
+- ...
