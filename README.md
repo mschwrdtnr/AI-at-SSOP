@@ -49,9 +49,10 @@ git clone https://github.com/MaxWeickert/ng-erp-4.0.git
 
 ## Trainingsdaten generieren
 1. Anzahl von approaches in der Simulationsschleife in _SimulationTemplate_ wählen
-2. Kennzahlen, die für die Trainingsdaten nicht benötigt werden kann ein `[IGNORE]` in `SimulationKpisReshaped.cs` vorangestellt werden
-3. Simulation starten: Rechtsklick auf Test _SimulationTemplate_ --> Run
-4. Die Kennzahlen werden unter folgendem Verzeichnis abgelegt: `Master40.XUnitTest\GeneratedData\`
+2. Variable `CreateCsvOfKpiList` in  _SimulationTemplate_ auf `true` setzen
+3. Kennzahlen, die für die Trainingsdaten nicht benötigt werden kann ein `[IGNORE]` in `SimulationKpisReshaped.cs` vorangestellt werden
+4. Simulation starten: Rechtsklick auf Test _SimulationTemplate_ --> Run
+5. Die Kennzahlen werden unter folgendem Verzeichnis abgelegt: `Master40.XUnitTest\GeneratedData\`
 
 > Es sollte darauf geachtet werden, dass immer ein anderer Seed verwendet wird, da die Kennzahlen sonst gleich werden.
 > Ein sinnvoller guter Wert für die ThroughPutTime beim Simulationsstart kann wie folgt berechnet werden: `Durchschnittliche Durchlaufzeit der Produkte * minDeliveryTime` 
@@ -66,8 +67,9 @@ git clone https://github.com/MaxWeickert/ng-erp-4.0.git
 
 
 ## Aktuelle Probleme und Fehler
-> Bezieht sich auf den verwendeten Branch und kann bereits im master der ssop gefixt sein.
+> Bezieht sich auf den verwendeten Branch und kann bereits im master der SSOP gefixt sein.
 
 - Die Variablen "TotalWork" und "TotalSetup" werden falsch berechnet. Eigentlich sollten sie Werte zwischen 0 und 1 haben.
+- Die Werte für Lager sind konstant steigend. Dies sollte eigentlich nicht der Fall sein.
 - Das Originalprojekt wurde mittlerweile von `Master40` zu `MATE` umgenannt. Diese Doku sollte wenn möglich bei einem merge auch angepasst werden.
 - ...
