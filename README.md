@@ -55,7 +55,9 @@ git clone https://github.com/MaxWeickert/ng-erp-4.0.git
 5. Die Kennzahlen werden unter folgendem Verzeichnis abgelegt: `Master40.XUnitTest\GeneratedData\`
 
 > Es sollte darauf geachtet werden, dass immer ein anderer Seed verwendet wird, da die Kennzahlen sonst gleich werden.
+ 
 > Ein sinnvoller guter Wert für die ThroughPutTime beim Simulationsstart kann wie folgt berechnet werden: `Durchschnittliche Durchlaufzeit der Produkte * minDeliveryTime` 
+
 > Wenn Trainingsdaten für für neue Produkte erstellt werden sollen, dann kann in `SetInput` die Anzahl der Produkte bestimmt werden. Auch hier sollte ein neuer Seed verwendet werden
 
 ## Testen einer guten Ankunftsrate
